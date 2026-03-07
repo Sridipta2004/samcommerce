@@ -1,0 +1,5 @@
+| URL         | METHOD | INPUT (req.body / params)          | OUTPUT (Response)                                                                                          |
+| ----------- | ------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/login`    | POST   | `{ email, password }`              | ✅ Success: `{ message: "Login successful", token, user }` <br> ❌ Error: `{ error: "Invalid credentials" }` |
+| `/register` | POST   | `{ name, phone, email, password }` | ✅ `{ message: "User registered successfully", user }` <br> ❌ `{ error: "Email/Phone already exists" }`     |
+| `/profile`  | GET    | `Auth Token (in headers)`          | ✅ `{ user: { name, email, phone, orders, products, wishlists } }` <br> ❌ `{ error: "Unauthorized" }`       |
