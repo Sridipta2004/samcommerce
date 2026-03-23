@@ -49,11 +49,26 @@ module.exports.getProductById = async (request, response) => {
 module.exports.deleteProduct = async (request, response) => {
     let productId = request.params.id
     try {
-        await productModel.findByIdAndDelete(productId)
-        return response.status(200).send({ message: "Product Deleted Successfully", success: true })
+        const productModel = require("../models/product.model");
+        const userModel = require("../models/user.model");
+        const product = await productModel.findById(productId).populate('user');
+        if (!product) {
+            return response.status(404).json({ message: "Product not found", success: false });
+        }
+        if (product.user._id.toString() !== request.user._id.toString()) {
+            return response.status(403).json({ message: "Unauthorized: You can only delete your own products", success: false });
+        }
+        // Remove from user's products array
+        await userModel.updateOne(
+            { _id: product.user._id },
+            { $pull: { products: productId } }
+        );
+        // Delete product
+        await productModel.findByIdAndDelete(productId);
+        return response.status(200).send({ message: "Product Deleted Successfully", success: true });
     } catch (error) {
         console.log(error);
-        return response.status(500).json({ message: "Internal Server Problem", success: false })
+        return response.status(500).json({ message: "Internal Server Problem", success: false });
     }
 }
 

@@ -1,5 +1,6 @@
 const orderModel = require("../models/order.model")
 const userModel = require("../models/user.model")
+const productModel = require("../models/product.model")
 const Razorpay = require("razorpay")
 
 const razorpay = new Razorpay({
@@ -64,6 +65,34 @@ module.exports.viewOrder = async (request, response) => {
         let orders = await orderModel.find({ user: userId }).populate('product').populate('user')
         return response.status(200).send({ message: "List of Orders", orders })
     } catch (error) {
+        return response.status(500).send({ message: "Internal Server Problem", success: false })
+    }
+}
+
+module.exports.addToOrders = async (request, response) => {
+    try {
+        let userId = request.user._id
+        let { pid } = request.params
+
+        let product = await productModel.findById(pid)
+        if (!product) {
+            return response.status(404).send({ message: "Product not found", success: false })
+        }
+
+        let newOrder = await orderModel.create({
+            product: pid,
+            user: userId,
+            paymentMethod: "simple",
+            amount: product.price,
+            status: "ordered",
+            receipt: `simple_order_${Date.now()}`
+        })
+        let user = await userModel.findById(userId)
+        user.orders.push(newOrder._id)
+        await user.save()
+        return response.status(201).send({ message: "Item Added to Orders!", success: true, order: newOrder })
+    } catch (error) {
+        console.log(error);
         return response.status(500).send({ message: "Internal Server Problem", success: false })
     }
 }

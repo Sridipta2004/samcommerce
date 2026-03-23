@@ -2,9 +2,56 @@ import React from "react";
 import { toast } from "react-toastify";
 
 function Publish() {
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Product Published Successfully 🚀");
+
+    const formData = new FormData(e.target);
+    const title = formData.get("title")?.toString().trim();
+    const desc = formData.get("desc")?.toString().trim();
+    const price = Number(formData.get("price"));
+    const image1 = formData.get("image1");
+    const image2 = formData.get("image2");
+
+    if (!title || !desc || !price || !image1 || !image2) {
+      toast.error("Please fill in all fields and attach both files.");
+      return;
+    }
+
+    const payload = {
+      title,
+      description: desc,
+      price,
+      banner: image1 instanceof File ? image1.name : "",
+      zip: image2 instanceof File ? image2.name : "",
+    };
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("You must be logged in to publish a product.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/product/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        toast.success(`${title} published successfully 🚀`);
+        e.target.reset();
+      } else {
+        toast.error(data.message || "Failed to publish product.");
+      }
+    } catch (error) {
+      console.error("Publish error:", error);
+      toast.error("Network error while publishing product.");
+    }
   };
 
   return (
@@ -29,6 +76,7 @@ function Publish() {
               <input
                 type="text"
                 id="title"
+                name="title"
                 placeholder="Enter title"
                 className="w-full px-4 py-3 mt-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 required
@@ -42,6 +90,7 @@ function Publish() {
               </label>
               <textarea
                 id="desc"
+                name="desc"
                 placeholder="Enter description"
                 className="w-full px-4 py-3 mt-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 rows={4}
@@ -57,6 +106,7 @@ function Publish() {
               <input
                 type="number"
                 id="price"
+                name="price"
                 min="0"
                 placeholder="Enter price"
                 className="w-full px-4 py-3 mt-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -72,6 +122,7 @@ function Publish() {
               <input
                 type="file"
                 id="image1"
+                name="image1"
                 accept="image/*"
                 className="w-full px-4 py-2 mt-2 border rounded-lg cursor-pointer bg-gray-50 focus:ring-2 focus:ring-blue-500"
                 required
@@ -86,6 +137,7 @@ function Publish() {
               <input
                 type="file"
                 id="image2"
+                name="image2"
                 accept="application/zip,application/x-zip-compressed,multipart/x-zip"
                 className="w-full px-4 py-2 mt-2 border rounded-lg cursor-pointer bg-gray-50 focus:ring-2 focus:ring-blue-500"
                 required
@@ -95,7 +147,7 @@ function Publish() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-500 transition duration-300 text-white font-semibold rounded-lg px-4 py-3 mt-4 shadow-md"
+              className="w-full bg-blue-700 hover:bg-blue-900 transition duration-300 text-black font-semibold rounded-lg px-4 py-3 mt-4 shadow-md"
             >
               Upload Now ➡️
             </button>

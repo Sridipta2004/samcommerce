@@ -1,0 +1,1 @@
+- [x] Edit samcommerce/src/pages/Contact.jsx for React form + API submit\n- [x] Test: Backend ready, restart server with `cd backend && npm start`, submit form at http://localhost:5173/contact, check MongoDB `db.contactsmessages.find()`

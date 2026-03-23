@@ -3,14 +3,37 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 function Register() {
-    let [username, setUsername] = useState('')
+    let [name, setName] = useState('')
     let [email, setEmail] = useState("")
     let [password, setPassword] = useState("")
 
-    let pressedRegisterButton = (e) => {
+    let pressedRegisterButton = async (e) => {
         e.preventDefault()
-        if (!username || !email || !password) {
+        if (!name || !email || !password) {
             return toast.error("All fields are Required!")
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success(data.message);
+                // Optionally redirect to login
+                // window.location.href = '/login';
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('An error occurred. Please try again.');
         }
     }
 
@@ -23,8 +46,8 @@ function Register() {
                         <p class="text-sm mt-4 text-[#002D74]">If you don't have an account, please Register</p>
                         <form class="mt-6" action="#" method="POST">
                             <div>
-                                <label class="block text-gray-700" htmlFor='username'>Username</label>
-                                <input onChange={(e) => setUsername(e.target.value)} type="text" name="username" autoComplete="off" id="username" placeholder="Enter Username" class="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none" autofocus autocomplete required />
+                                <label class="block text-gray-700" htmlFor='name'>Name</label>
+                                <input onChange={(e) => setName(e.target.value)} type="text" name="name" autoComplete="off" id="name" placeholder="Enter Name" class="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none" autofocus autocomplete required />
                             </div>
 
                             <div className='mt-4'>
@@ -39,14 +62,13 @@ function Register() {
                             </div>
 
 
-                            <button type="submit" onClick={pressedRegisterButton} class="w-full block bg-blue-500 hover:bg-blue-400 focus:bg-blue-400 text-white font-semibold rounded-lg
-                px-4 py-3 mt-6">Register</button>
+                            <button type="submit" onClick={pressedRegisterButton} class="w-full block bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-blue font-semibold rounded-lg px-4 py-3 mt-6">Register</button>
                         </form>
 
 
                         <div class="text-sm flex justify-between items-center mt-3">
                             <p>If you already have an account...</p>
-                            <Link to="/login" class="py-2 px-5 ml-3 bg-blue-400  border rounded-xl hover:scale-110 duration-300 border-blue-400  ">Login</Link>
+                            <Link to="/login" class="py-2 px-5 ml-3 bg-blue-900  border rounded-xl hover:scale-110 duration-300 border-blue-400  ">Login</Link>
                         </div>
                     </div>
 

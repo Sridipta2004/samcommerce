@@ -13,11 +13,14 @@ const userRouter = require('./routes/user.route')
 const productRouter = require('./routes/product.route')
 const orderRouter = require('./routes/order.route')
 const wishlistRouter = require('./routes/wishlist.route')
+const contactRouter = require('./routes/contact.route')
 
 app.use("/user", userRouter)
 app.use("/product", productRouter)
 app.use("/order", orderRouter)
 app.use("/wishlist", wishlistRouter)
+
+app.use("/contact", contactRouter)
 
 let port = process.env.PORT
 dbConnection()
