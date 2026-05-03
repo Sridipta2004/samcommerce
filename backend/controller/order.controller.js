@@ -84,7 +84,7 @@ module.exports.addToOrders = async (request, response) => {
             user: userId,
             paymentMethod: "simple",
             amount: product.price,
-            status: "ordered",
+            status: "pending",
             receipt: `simple_order_${Date.now()}`
         })
         let user = await userModel.findById(userId)
@@ -92,8 +92,8 @@ module.exports.addToOrders = async (request, response) => {
         await user.save()
         return response.status(201).send({ message: "Item Added to Orders!", success: true, order: newOrder })
     } catch (error) {
-        console.log(error);
-        return response.status(500).send({ message: "Internal Server Problem", success: false })
+        console.error("addToOrders error:", error);
+        return response.status(500).send({ message: "Internal Server Problem", success: false, error: error.message, stack: error.stack })
     }
 }
 
